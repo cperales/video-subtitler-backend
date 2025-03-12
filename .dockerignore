@@ -1,0 +1,14 @@
+# Folders
+aws/
+aws_scripts/
+env/
+tmp/
+video/
+models/
+openai-whisper-cpu/
+
+# Files
+*.mp3
+*.mp4
+*.pt
+*.zip

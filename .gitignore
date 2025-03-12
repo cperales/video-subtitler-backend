@@ -1,0 +1,12 @@
+# Folders
+env/
+tmp/
+models/
+__pycache__/
+
+# Files
+*.mp3
+*.mp4
+*.pt
+*.zip
+*.srt
