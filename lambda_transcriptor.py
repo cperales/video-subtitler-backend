@@ -1,10 +1,8 @@
 import time
 import os
 import logging
-from threading import Thread
 import whisper
 from whisper.model import ModelDimensions, Whisper
-import os
 import boto3
 import io
 import pickle
