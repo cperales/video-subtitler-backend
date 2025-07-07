@@ -163,13 +163,14 @@ class TestTranscriptionLambdaHandler(unittest.TestCase):
         s3_client = boto3.client('s3', region_name='us-east-1')
         bucket_name = 'test-bucket'
         file_key = 'test/file.txt'
-        
+
         # Create the bucket and put an object
         s3_client.create_bucket(Bucket=bucket_name)
         s3_client.put_object(Bucket=bucket_name, Key=file_key, Body=b'test content')
-        
-        # Test the function
-        result = lambda_get_subtitles.check_file_exists(bucket_name, file_key)
+
+        with patch('lambda_get_subtitles.s3', s3_client):
+            # Test the function
+            result = lambda_get_subtitles.check_file_exists(bucket_name, file_key)
         
         # Assert the result
         self.assertTrue(result)
@@ -180,18 +181,16 @@ class TestTranscriptionLambdaHandler(unittest.TestCase):
         s3_client = boto3.client('s3', region_name='us-east-1')
         bucket_name = 'test-bucket'
         file_key = 'test/nonexistent.txt'
-        
+
         # Create the bucket but don't put any object
         s3_client.create_bucket(Bucket=bucket_name)
         
         # Need to patch head_object to raise the proper ClientError
-        with patch('lambda_get_subtitles.s3.head_object') as mock_head_object:
-            # Create a ClientError with 404 code
-            error_response = {'Error': {'Code': '404'}}
-            mock_head_object.side_effect = ClientError(error_response, 'HeadObject')
-            
-            # Test the function
-            result = lambda_get_subtitles.check_file_exists(bucket_name, file_key)
+        error_response = {'Error': {'Code': '404'}}
+        with patch('lambda_get_subtitles.s3', s3_client):
+            with patch.object(s3_client, 'head_object', side_effect=ClientError(error_response, 'HeadObject')):
+                # Test the function
+                result = lambda_get_subtitles.check_file_exists(bucket_name, file_key)
             
             # Assert the result
             self.assertFalse(result)
@@ -207,14 +206,12 @@ class TestTranscriptionLambdaHandler(unittest.TestCase):
         s3_client.create_bucket(Bucket=bucket_name)
         
         # Need to patch head_object to raise a different ClientError
-        with patch('lambda_get_subtitles.s3.head_object') as mock_head_object:
-            # Create a ClientError with 403 code
-            error_response = {'Error': {'Code': '403'}}
-            mock_head_object.side_effect = ClientError(error_response, 'HeadObject')
-            
-            # Test the function - should raise the exception
-            with self.assertRaises(ClientError):
-                lambda_get_subtitles.check_file_exists(bucket_name, file_key)
+        error_response = {'Error': {'Code': '403'}}
+        with patch('lambda_get_subtitles.s3', s3_client):
+            with patch.object(s3_client, 'head_object', side_effect=ClientError(error_response, 'HeadObject')):
+                # Test the function - should raise the exception
+                with self.assertRaises(ClientError):
+                    lambda_get_subtitles.check_file_exists(bucket_name, file_key)
     
     @mock_aws
     @patch('lambda_get_subtitles.check_file_exists')

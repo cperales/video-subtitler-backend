@@ -141,6 +141,20 @@ def lambda_handler(event, context):
     s3_client.upload_file(srt_file, AWS_BUCKET_NAME, s3_output_key_srt)
     logging.warning('SRT file uploaded to %s', s3_output_key_srt)
 
+    return {
+        'statusCode': 200,
+        'body': {
+            'text': {
+                'key': s3_output_key_txt,
+                'bucket': AWS_BUCKET_NAME,
+            },
+            'subtitles': {
+                'key': s3_output_key_srt,
+                'bucket': AWS_BUCKET_NAME,
+            }
+        }
+    }
+
 
 
 def save_transcription(data, srt_file):
