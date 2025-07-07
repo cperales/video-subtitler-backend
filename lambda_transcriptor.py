@@ -202,11 +202,5 @@ def get_transcription(audio, MODEL):
 
 
 def remove_beginning_whitespace(text):
-    # Remove space at the beggining
-    space = True
-    while space:
-        if text[0] == ' ':
-            text = text[1:]
-        else:
-            space = False
-    return text
+    # Remove space at the beginning
+    return text.lstrip()
