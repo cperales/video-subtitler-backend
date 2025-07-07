@@ -19,3 +19,9 @@ python -m unittest tests/test_add_subtitles.py
 python -m unittest tests/test_get_subtitles.py
 python -m unittest tests/test_extract_audio.py
 ```
+
+## Lambda output
+
+The `lambda_transcriptor` function uploads a TXT file with the transcription and
+an SRT file with subtitles to the configured S3 bucket. It returns a JSON body
+containing the bucket and the keys for these files.
